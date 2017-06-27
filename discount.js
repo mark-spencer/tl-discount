@@ -124,7 +124,7 @@
   };
 
   //Abstract rule object
-  abstractRule=function(options) {
+  var abstractRule=function(options) {
     return {
       description: options.description,
       condition: options.condition,
