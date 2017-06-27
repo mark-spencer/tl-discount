@@ -215,9 +215,12 @@
   };
 
   //Test function
-  discount.test=function(outputElement) {
-    //Loop through all orders from DB
-    customDB.order.data.forEach(function(order) {
+  discount.test=function(outputElement,orders) {
+    //Clear outputwindow
+    outputElement.innerHTML='';
+    //Loop through all orders from DB or from param
+    orders=orders||customDB.order.data;
+    orders.forEach(function(order) {
       //Calculate the discount!
       var discountedOrder=discount.calculate(order);
       //Gather some info, show the object on the console
@@ -260,7 +263,7 @@
         html.push('<strike>'+discountedOrder._discounts.map((discount)=>discount.value.old).join(' -> ')+' EUR</strike> '+discountedOrder.total+' EUR: '+discountedOrder._discounts.map((discount)=>discount.reason).join(' -> '));
       }
       else {
-        html.push(discountedOrder.total);
+        html.push(discountedOrder.total+' EUR');
       };
       html.push('</div>');
       //Simple output system

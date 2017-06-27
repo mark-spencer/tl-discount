@@ -11,8 +11,21 @@
 		</style>
 	</head>
 	<body>
-		<button onclick='discount.test(document.getElementById("divOutput"))'>Test</button>
+		<button onclick='discount.test(document.getElementById("divOutput"))'>Test all orders</button>
 
-		<div id="divOutput" />
+		<div><i>Developer Tools > Console shows internal objects</i></div>
+
+		<div id="divOutput"></div>
+
+		<h2>Playground (not bulletproof! :) )</h2>
+		<textarea id="mmoPlaygroundOrder" style="width:600px;height:300px;"></textarea>
+		<br />
+		<div><i>PS: total in the textarea is unchanged when no discount applies!</i></div>
+		<br />
+		<button onclick='document.getElementById("mmoPlaygroundOrder").value=JSON.stringify(customDB.order.data[0]);'>Load order 1</button>
+		<button onclick='document.getElementById("mmoPlaygroundOrder").value=JSON.stringify(customDB.order.data[1]);'>Load order 2</button>
+		<button onclick='document.getElementById("mmoPlaygroundOrder").value=JSON.stringify(customDB.order.data[2]);'>Load order 3</button>
+		<br />
+		<button onclick='discount.test(document.getElementById("divOutput"),[JSON.parse(document.getElementById("mmoPlaygroundOrder").value)])'>Test playground order</button>
 	</body>
 </html>
