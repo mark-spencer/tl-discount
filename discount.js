@@ -106,6 +106,7 @@
       if (!affected.object._discounts) {
         affected.object._discounts=[];
       };
+      //Add discount info to the affected object
       var _discounts=affected.object._discounts;
       _discounts.push({
         reason: rule.description,
@@ -120,7 +121,7 @@
     };
     //Mark the order as discounted
     order._hasDiscounts=true;
-  }
+  };
 
   //Abstract rule object
   abstractRule=function(options) {
@@ -209,13 +210,61 @@
     discountedOrder._hasDiscounts=false;
     //Apply rules on !
     activeDiscountRules.forEach((discountRule) => discountRule.execute(discountedOrder));
-    //Recalc!
-    console.log(discountedOrder);
+    //Get back with the discounted order
+    return discountedOrder;
   };
 
   //Test function
-  discount.test=function() {
+  discount.test=function(outputElement) {
     //Loop through all orders from DB
-    customDB.order.data.forEach((order) => this.calculate(order));
+    customDB.order.data.forEach(function(order) {
+      //Calculate the discount!
+      var discountedOrder=discount.calculate(order);
+      //Gather some info, show the object on the console
+      console.log(discountedOrder);
+      var html=[];
+      html.push('<hr /><h1>Order '+order.id+'</h1>');
+      //Show the order with the applied discounts & info
+      if (discountedOrder._hasDiscounts) {
+        discountedOrder.items.forEach(function(orderItem) {
+          html.push('<div style="font-weight:bold;">&bull; Product '+orderItem['product-id']+'</div>');
+          //Unit-price
+          if (orderItem._discounts && orderItem._discounts.some((discount)=>discount.changedProperty=='unit-price')) {
+            //Unit-price discount!
+            html.push('<div><strike>'+orderItem._discounts.map((discount)=>discount.value.old).join(' -> ')+' EUR</strike> '+orderItem['unit-price']+' EUR: '+orderItem._discounts.map((discount)=>discount.reason).join(' -> ')+'</div>');
+          } 
+          else {
+            //No discount on unit-price...
+            html.push('<div>'+orderItem['unit-price']+' EUR</div>');
+          };
+          //Quantity
+          if (orderItem._discounts && orderItem._discounts.some((discount)=>discount.changedProperty=='quantity')) {
+            //Quantity discount!
+            var origQty=orderItem._discounts[0].value.old;
+            html.push('<div>x '+origQty+' (+'+(orderItem['quantity']-origQty)+' FREE): '+orderItem._discounts.map((discount)=>discount.reason).join(' -> ')+'</div>');
+          } 
+          else {
+            //No discount on quantity...
+            html.push('<div>x '+orderItem['quantity']+' EUR</div>');
+          };
+          //Total
+          html.push('<div> = '+orderItem.total+' EUR</div>')
+        });
+      }
+      else {
+        html.push('<div>No discount.</div>');
+      };
+      //TOTAL
+      html.push('<div style="margin-top:8px;"><u>TOTAL</u>: ');
+      if (discountedOrder._discounts && discountedOrder._discounts.some((discount)=>discount.changedProperty=='total')) {
+        html.push('<strike>'+discountedOrder._discounts.map((discount)=>discount.value.old).join(' -> ')+' EUR</strike> '+discountedOrder.total+' EUR: '+discountedOrder._discounts.map((discount)=>discount.reason).join(' -> '));
+      }
+      else {
+        html.push(discountedOrder.total);
+      };
+      html.push('</div>');
+      //Simple output system
+      outputElement.innerHTML=outputElement.innerHTML+html.join('');
+    });
   };
 })()
